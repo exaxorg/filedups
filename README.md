@@ -297,7 +297,7 @@ build script has been executed.  Try for example
    command is powerful, please have a look at the help information
    using `--help`.
 
- - Using `ax run ``fullpath` will print out the full path for each job
+ - Using `ax run --fullpath` will print out the full path for each job
    directory.  The curious will use this for manual investigation of
    the job directories!
 
