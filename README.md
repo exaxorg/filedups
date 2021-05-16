@@ -1,6 +1,6 @@
-This project provides a fast and extendable way to find duplicate
-image files in a file system.  With straightforward modifications it
-works on any types of files.
+This ExAx-based project provides a fast and extendable way to find
+duplicate image files in a file system.  With straightforward
+modifications it works on any types of files.
 
 <br><br>
 <p align="center">
@@ -42,13 +42,13 @@ Performance
 The script has been profiled on [this
 machine](https://expertmakeraccelerator.org/performance/2019/09/02/bigdata_on_inexpensive_workstation.html).
 The machine is inexpensive and far from state-of-the-art, but using
-the Accelerator the performance is impressive.
+ExAx, the performance is impressive.
 
 The tested file system is composed of more than 116.000 files
 separated into 1360 directories, occupying a total of 704GiB.
 Scanning this file system takes 466 seconds.  Finding the actual
 duplicates adds another two seconds to that.  Since the jobs are
-parallelised by the Accelerator, computation speed is on average
+parallelised by ExAx, computation speed is on average
 **above 1.5GiB/second**.
 
 
@@ -100,14 +100,8 @@ Setup and Run the Example
 
 
 
-1. (Optional) The output file can also be accessed from the
-   Accelerator Board server.  Run
-
-   ```
-   ax board
-   ```
-
-   and point a web browser to `http://localhost:8520`.  All jobs, data,
+1. (Optional) The output is also available using a web browser by
+   entering `http://localhost:8520` in the URL field.  All jobs, data,
    and code associated with the result file can be browsed this way.
 
 
@@ -159,8 +153,8 @@ basically like this
    returning a list of all `scandir` jobs.
 
 When the `scan` method completes execution, the returned data is a
-list of jobs.  Each job contains one dataset containing data on all
-files in one directory.
+list of jobs.  Each job contains one dataset with data on all files in
+one directory.
 
 The next part reads all datasets and finds duplicates by looking at
 the hash digests.
@@ -171,14 +165,14 @@ the hash digests.
    Chains are the preferred way to work with multiple datasets.  The
    reason that the `scandir` jobs are not chained directly is to keep
    them completely independent of each other.  This is beneficial if
-   there are modifications in the directory hierarchy, since only jobs
-   affected by the modifications need to be computed.  Constructing a
-   chain later is basically done by creating a set of links, which is
-   of very low cost.
+   there are modifications in the scanned directory hierarchy, since
+   only jobs affected by the modifications need to be computed.
+   Constructing a chain later is basically done by creating a set of
+   links, which is of very low cost.
 
 1. The dataset chain is then fed to the built-in `dataset_hashpart`
    method.  This method will partition the data based on the hash
-   digest column so that each value can only appear in one slice.
+   digest column so that each value is mapped to a unique slice.
 
    This means that finding duplicates can be carried out in parallel,
    independently in each slice.
@@ -192,7 +186,8 @@ the hash digests.
    they will appear on adjacent lines.
 
    Since the dataset is hash partitioned and sorted, the `duplicates`
-   method can run in parallel on all slices simultaneously.
+   method can run in parallel on all slices simultaneously, in linear
+   time.
 
    A report file will be linked to the result directory.
 
@@ -218,11 +213,11 @@ ax run alternative
 
 
 
-New to the Accelerator?
+New to ExAx?
 ------
 
-The Accelerator is running *jobs* that are stored on disk for later
-use.  Everything needed to run a job (input data references,
+ExAx (the Accelerator) is running *jobs* that are stored on disk for
+later use.  Everything needed to run a job (input data references,
 parameters, source code) as well as any generated output is recorded
 in the job.  Jobs are built from *build scripts* or from other jobs
 (then they are called *subjobs*).  Each job is associated with a
@@ -231,13 +226,13 @@ unique identifier called a *jobid*, such as for example `img-37`.
 A job `build()`-call returns a Python "job object", containing
 information about the job and links to its input and output.  If a job
 has been built before, the job object is returned immediately and no
-processing is done.  (Don't compute what already exists!)  Job objects
-could be input to new job builds, allowing a job to make use of a
-previous job's output data or results in a transparent way.
+processing is done.  (No need to compute what already exists!)  Job
+objects can be input to new job builds, allowing a job to make use of
+a previous job's output data or results in a transparent way.
 
 Any data created by a job is stored in the job's *job directory*.  All
 results are stored with recipes describing how they were created.
-Thus, knowing how a result was came to ("this code on this data with
+Thus, knowing how a result was created ("this code on this data with
 these parameters"), means that the result can be fetched immediately
 just by calling `build()`.  The wanted data is looked up using the
 resulting job object.
@@ -269,23 +264,21 @@ in parallel.
 
 It is common to hash partition datasets based on the values in one of
 its columns.  Hash partitioning ensures that all rows with a certain
-value in the hashing column ends up in the same slice.  This reduces
-the need for expensive merging operation typically otherwise
-associated with parallel data processing.
+value in the hashing column ends up in the same slice.  This
+eliminates the need for expensive merging operations typically
+otherwise associated with parallel data processing (such as
+"map-reduce").
 
-The Accelerator comes with a set of "standard methods" for various
-common tasks, among them a fast tabular file reader and a powerful
-data parser and data typing method.  (Strict typing is important in
-serious data science tasks.)
+Exax comes with a set of "standard methods" for various common tasks,
+among them a fast tabular file reader and a powerful data parser and
+data typing method.  (Strict typing is important in serious data
+science tasks.)
 
 To get started, there are some command line tools to try after the
 build script has been executed.  Try for example
 
- - `ax help` for an overview of commands, then `ax command --help` for
+ - `ax help` or `ax -h` for an overview of commands, then `ax <command> --help` for
    help on individual commands.
-
- - `ax board` to start a web server for browsing jobs and datasets.
-   Point a browser to `http://localhost:8520` to get started!
 
  - `ax method` to get a list and description of all available methods
 
@@ -293,7 +286,7 @@ build script has been executed.  Try for example
    show, among other things, all parameters as well as all files and
    datasets created by (and stored in) the job.
 
- - `ax dsinfo <jobid[/dataset]>` to learn about a dataset.  This
+ - `ax ds <jobid[/dataset]>` to learn about a dataset.  This
    command is powerful, please have a look at the help information
    using `--help`.
 
@@ -311,14 +304,14 @@ The Accelerator's [Reference Manual](https://berkeman.github.io/pdf/acc_manual.p
 The Accelerator on [github.com/eBay](https://github.com/ebay/accelerator).<br>
 The Accelerator on [eBay's Tech Blog](https://tech.ebayinc.com/engineering/announcing-the-accelerator-processing-1-000-000-000-lines-per-second-on-a-single-computer).<br>
 The Accelerator on [Hacker News](https://news.ycombinator.com/item?id=16999441).<br>
-The Accelerator on [PyPI](https://pypi.org/project/accelerator/).<br>
+The Accelerator on [Py](https://pypi.org/project/accelerator/).<br>
 
 
 
 License
 -------
 
-Copyright 2020 Anders Berkeman, Carl Drougge, and Sofia Hörberg.
+Copyright 2020-2021 Anders Berkeman, Carl Drougge, and Sofia Hörberg.
 
 Licensed under the Apache License, Version 2.0 (the "License"); you
 may not use this file except in compliance with the License. You may
